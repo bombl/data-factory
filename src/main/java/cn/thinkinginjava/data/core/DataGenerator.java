@@ -11,6 +11,7 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
@@ -162,11 +163,25 @@ public class DataGenerator {
 
     private void saveWhere(PlainSelect plainSelect) {
         Expression expression = plainSelect.getWhere();
+
         if (expression instanceof AndExpression) {
             Expression leftExpression = ((AndExpression) expression).getLeftExpression();
             saveRelationship(leftExpression);
             Expression rightExpression = ((AndExpression) expression).getRightExpression();
             saveRelationship(rightExpression);
+        }
+        if (expression instanceof InExpression) {
+            Table table = (Table) plainSelect.getFromItem();
+            InExpression inExpression = (InExpression) expression;
+            Expression leftExpression = inExpression.getLeftExpression();
+            ItemsList rightItemsList = inExpression.getRightItemsList();
+            String rightItems = rightItemsList.toString();
+            Column column = (Column) leftExpression;
+            if (inExpression.toString().toUpperCase(Locale.ROOT).contains("NOT")) {
+                whereMap.put(table.getName() + "-" + column.getColumnName().toUpperCase(Locale.ROOT), "NOT IN" + rightItems);
+            } else {
+                whereMap.put(table.getName() + "-" + column.getColumnName().toUpperCase(Locale.ROOT), "IN" + rightItems);
+            }
         }
     }
 

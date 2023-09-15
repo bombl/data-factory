@@ -25,7 +25,9 @@ public class AliasPaser {
         List<Join> joins = plainSelect.getJoins();
         // 获取表名和表别名
         Table table = (Table) plainSelect.getFromItem();
-        aliasMap.put(table.getAlias().getName(), table.getName());
+        if (table.getAlias() != null) {
+            aliasMap.put(table.getAlias().getName(), table.getName());
+        }
         if (joins == null) {
             return aliasMap;
         }
@@ -33,7 +35,9 @@ public class AliasPaser {
             FromItem rightItem = join.getRightItem();
             if (rightItem instanceof Table) {
                 Table joinTable = (Table) rightItem;
-                aliasMap.put(joinTable.getAlias().getName(), joinTable.getName());
+                if (joinTable.getAlias() != null) {
+                    aliasMap.put(joinTable.getAlias().getName(), joinTable.getName());
+                }
             }
         }
         return aliasMap;
