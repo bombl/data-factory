@@ -22,7 +22,7 @@
 - **配置修改：** 可以指定生成数据数量、修改数据生成条件（默认条件为SQL语句中的查询条件，支持手动修改或者增加新条件）.
   ![](https://github.com/bombl/ImageHost/blob/main/datafactory2.png?raw=true)
   &nbsp;
-- **数据源管理：** 指定生成数据对应的数据源.
+- **数据源管理：** 新增数据源.
   ![](https://github.com/bombl/ImageHost/blob/main/datafactory3.png?raw=true)
   &nbsp;
 
@@ -30,7 +30,7 @@
 - 简单方便：基于SQL语句生成语句中所涉及表的数据，可自动生成多表关联数据；
 - 数据预览：生成的数据支持预览；
 - 持久化：支持将生成数据的INSERT语句复制到剪切板或者直接在数据库中执行；
-- 多数据库类型：支持ORACLE、MySQL数据库。
+- 支持多种数据库：支持ORACLE、MySQL数据库。
 
 ## Contributing
 Contributions are welcome! Open a pull request to fix a bug, or open an [Issue](https://github.com/bombl/data-factory/issues/) to discuss a new feature or change.
