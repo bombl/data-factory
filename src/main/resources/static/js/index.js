@@ -5,7 +5,8 @@ function generateData() {
     obj.generateNum = $('#generateNum').val();
     obj.querySql = $("#sqlTextarea").val();
     const dataMap = getCondition();
-    obj.extWhereMap = Object.fromEntries(dataMap);;
+    obj.extWhereMap = Object.fromEntries(dataMap);
+    ;
     debugger
     // obj.ddlList = arr;
     var data = JSON.stringify(obj);
@@ -31,25 +32,27 @@ function getCondition() {
     const dataMap = new Map();
 
     // 遍历每个标签页
-    $('#tabs .nav-link').each(function() {
+    $('#tabs .nav-link').each(function () {
         const tabId = $(this).attr('href').substring(1); // 获取标签页的ID
 
-        const tabContent = $(`#${tabId} select option:selected`).filter(function() {
+        const tabContent = $(`#${tabId} select option:selected`).filter(function () {
             // 筛选出不是 "请选择" 且值不为空的选项
             return $(this).val() !== '' && $(this).text() !== '请选择';
         });
 
         // 遍历符合条件的选项，并将数据存储到 Map 中
-        tabContent.each(function() {
+        tabContent.each(function () {
             const expression = $(this).val(); // 获取选项的值（例如：">", "=", "!=" 等）
             const fieldName = $(this).closest('tr').find('td:first-child').text(); // 获取字段名称
             let inputValue = '';
 
             // 获取输入框的值，如果是日期时间选择器，则获取它的值方式不同
             if ($(this).closest('tr').find('input[type="datetime-local"]').length) {
-                inputValue = $(this).closest('tr').find('input[type="datetime-local"]').val().replace("T"," ");
-            } else {
+                inputValue = $(this).closest('tr').find('input[type="datetime-local"]').val().replace("T", " ");
+            } else if ($(this).closest('tr').find('input[type="text"]').length){
                 inputValue = $(this).closest('tr').find('input[type="text"]').val();
+            } else {
+                inputValue = $(this).closest('tr').find('select').val();
             }
 
             if (expression === 'in') {
@@ -376,9 +379,9 @@ function setCondition() {
                                 ${columnDefinitions.map(column => `
                                     <tr>
                                         <td>${column.columnName}</td>
-                                        <td>${column.colDataType.dataType}${column.colDataType.argumentsStringList===null? '':`(${column.colDataType.argumentsStringList})`}</td>
+                                        <td>${column.colDataType.dataType}${column.colDataType.argumentsStringList === null ? '' : `(${column.colDataType.argumentsStringList})`}</td>
                                         <td>
-                                            <select>
+                                            <select class="columnOption">
                                                 <option value="">请选择</option> <!-- 默认的 "请选择" 选项 -->
                                                 <option ${column.option === '>' ? 'selected' : ''}>></option>
                                                 <option ${column.option === '=' ? 'selected' : ''}>=</option>
@@ -387,13 +390,15 @@ function setCondition() {
                                                 <option ${column.option === 'IN' ? 'selected' : ''}>in</option>
                                                 <option ${column.option === 'NOT IN' ? 'selected' : ''}>not in</option>
                                                 <option ${column.option === 'LIKE' ? 'selected' : ''}>like</option>
+                                                <option value="DATASET">数据集</option>
                                             </select>
                                         </td>
                                         <td>
                                             ${column.colDataType.dataType === 'DATE' ?
-                            `<input type="datetime-local" value="${column.value !== null ? column.value.replace(' ', 'T') : ''}">` :
-                            (column.value !== null ? `<input type="text" value="${column.value}">` : '<input type="text" value="">')}
+                                                `<input type="datetime-local" value="${column.value !== null ? column.value.replace(' ', 'T') : ''}">` :
+                                                (column.value !== null ? `<input type="text" value="${column.value}">` : '<input type="text" value="">')}
                                         </td>
+                                    </tr>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -405,6 +410,16 @@ function setCondition() {
 
             // 激活第一个标签页
             $('#tabs a:first').tab('show');
+
+            $('.columnOption').on('change', function () {
+                const selectedOption = $(this).val(); // 获取当前选择的选项的值
+                const tdElement = $(this).closest('td');
+                const nextTdElement = tdElement.next('td');
+                if (selectedOption === 'DATASET') {
+                    // 用户选择了数据集，此时可以从后台加载数据
+                    loadDatasetData(nextTdElement);
+                }
+            });
 
         },
         error: function (xhr, status, error) {
@@ -424,8 +439,56 @@ function generateOptions(option) {
     return optionValues.map(value => `<option>${value}</option>`).join('');
 }
 
+function loadDatasetData(tdElement) {
+    // const key = selectElement.closest('.tab-pane').attr('id'); // 获取当前标签页的 ID
+    // const columnName = selectElement.closest('tr').find('td:first').text(); // 获取当前行的第一个单元格的文本
+    // const targetSelect = $(`select[data-key="${key}"][data-column-name="${columnName}"]`);
+
+    var obj = {};
+    obj.currentPage = 1;
+    obj.pageSize = 200;
+    var data = JSON.stringify(obj);
+
+    $.ajax({
+        url: base_url + "/dataset/list",
+        type: "post",
+        data: data,
+        contentType: "application/json",
+        success: function (response) {
+            // 清空下拉框选项
+            tdElement.empty();
+
+            if (response.data.length === 0) {
+                return;
+            }
+
+            const selectElement = $('<select class="columnOption" style="width: 159px;height: 29px;"></select>');
+            // selectElement.append('<option value="">请选择</option>'); // 默认的 "请选择" 选项
+
+            response.data.forEach(function (item) {
+                selectElement.append($('<option></option>').val(item.id).text(item.name));
+            });
+
+            // 将下拉框添加到<td>中
+            tdElement.append(selectElement);
+        },
+        error: function (xhr, status, error) {
+            // 处理错误
+            console.error('Error loading data:', error);
+        }
+    });
+}
 
 $(document).ready(function () {
+    $('.columnOption').on('change', function () {
+        const selectedOption = $(this).val(); // 获取当前选择的选项的值
+
+        if (selectedOption === 'DATASET') {
+            // 用户选择了数据集，此时可以从后台加载数据
+            loadDatasetData();
+        }
+    });
+
     var obj = {};
     obj.currentPage = 1;
     obj.pageSize = 20;

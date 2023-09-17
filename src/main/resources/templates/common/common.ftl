@@ -181,24 +181,12 @@
                             <p>数据源管理</p>
                         </a>
                     </li>
-<#--                    <li class="nav-item">-->
-<#--                        <a href="class" class="nav-link">-->
-<#--                            <i class="nav-icon far fa-circle text-info"></i>-->
-<#--                            <p>服务类管理</p>-->
-<#--                        </a>-->
-<#--                    </li>-->
-<#--                    <li class="nav-item">-->
-<#--                        <a href="method" class="nav-link">-->
-<#--                            <i class="nav-icon far fa-circle text-success"></i>-->
-<#--                            <p>方法管理</p>-->
-<#--                        </a>-->
-<#--                    </li>-->
-<#--                    <li class="nav-item">-->
-<#--                        <a href="data" class="nav-link">-->
-<#--                            <i class="nav-icon far fa-circle text-primary"></i>-->
-<#--                            <p>数据管理</p>-->
-<#--                        </a>-->
-<#--                    </li>-->
+                    <li class="nav-item">
+                        <a href="dataset" class="nav-link">
+                            <i class="nav-icon far fa-circle text-warning"></i>
+                            <p>数据集管理</p>
+                        </a>
+                    </li>
                 </ul>
             </nav>
             <!-- /.sidebar-menu -->
@@ -212,6 +200,6 @@
         <div class="float-right d-none d-sm-inline-block">
             <b>Version</b> 0.0.1
         </div>
-        <strong>Copyright &copy; 2014-2023 <a href="https://github.com/bombl/mockit">Data-Facotry</a>.</strong>
+        <strong>Copyright &copy; 2014-2023 <a href="https://github.com/bombl/data-factory">Data-Facotry</a>.</strong>
     </footer>
 </#macro>

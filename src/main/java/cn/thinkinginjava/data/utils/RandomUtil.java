@@ -1,6 +1,8 @@
 package cn.thinkinginjava.data.utils;
 
+import cn.thinkinginjava.data.service.impl.DatasetManager;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,20 +15,36 @@ import java.util.regex.Pattern;
 
 public class RandomUtil {
 
+    public static Object getRandomValue(String datasetId) {
+        DatasetManager datasetManager = SpringContextUtil.getBean(DatasetManager.class);
+        if (datasetManager == null) {
+            return null;
+        }
+        List<Object> dataList = datasetManager.getDataList(datasetId);
+        if (CollectionUtils.isEmpty(dataList)) {
+            return null;
+        }
+        Random random = new Random();
+        int randomIndex = random.nextInt(dataList.size());
+        return dataList.get(randomIndex);
+    }
+
     public static String generateRandomValue(ColumnDefinition columnDefinition) {
         String dataType = columnDefinition.getColDataType().getDataType().toLowerCase();
         List<String> argumentsStringList = columnDefinition.getColDataType().getArgumentsStringList();
-        int length = argumentsStringList != null ? Integer.parseInt(argumentsStringList.get(0)) : 10;
-        length = Math.min(length, 10);
+        int length = argumentsStringList != null ? Integer.parseInt(argumentsStringList.get(0)) : 15;
+        length = Math.min(length, 15);
         int scale = 0;
         if (argumentsStringList != null && argumentsStringList.size() > 1) {
             scale = Integer.parseInt(argumentsStringList.get(1));
         }
-        if (dataType.contains("int") || dataType.contains("number")) {
+        if (dataType.contains("tinyint") || dataType.contains("smallint") || dataType.contains("mediumint")) {
+            return String.valueOf(new Random().nextInt(9));
+        }else if (dataType.contains("int") || dataType.contains("number") || dataType.contains("bigint")) {
             return String.valueOf(new Random().nextInt(Integer.MAX_VALUE));
-        } else if (dataType.contains("varchar") || dataType.contains("char")) {
+        } else if (dataType.contains("varchar") || dataType.contains("char") || dataType.contains("text")) {
             return "'" + RandomUtil.generateRandomString(length) + "'";
-        } else if (dataType.contains("decimal")) {
+        } else if (dataType.contains("decimal") || dataType.contains("float") || dataType.contains("double")) {
             return RandomUtil.generateDecimalValue(length, scale);
         } else if (dataType.contains("date")) {
             return RandomUtil.generateRandomDate();
@@ -65,9 +83,9 @@ public class RandomUtil {
         int currentYear = LocalDate.now().getYear();
         int currentMonth = LocalDate.now().getMonthValue();
         int day = random.nextInt(getDaysInMonth(currentYear, currentMonth)) + 1;
-        int hour = random.nextInt(24); // 0-23
-        int minute = random.nextInt(60); // 0-59
-        int second = random.nextInt(60); // 0-59
+        int hour = random.nextInt(23); // 0-23
+        int minute = random.nextInt(59); // 0-59
+        int second = random.nextInt(59); // 0-59
         return convertToLocalDateToDate(
                 LocalDate.of(currentYear, currentMonth, day), hour, minute, second
         );
@@ -78,7 +96,7 @@ public class RandomUtil {
         if (condition.contains(">=") || condition.contains(">")) {
             String dateString = condition.replaceAll(">=", "");
             dateString = dateString.replaceAll(">", "");
-            dateString = dateString.replaceAll("'","");
+            dateString = dateString.replaceAll("'", "");
             try {
                 Date date = sdf.parse(dateString);
                 Calendar calendar = Calendar.getInstance();
@@ -92,7 +110,7 @@ public class RandomUtil {
                 int day = random.nextInt(getDaysInMonth(currentYear, currentMonth)) + 1;
                 int hour = random.nextInt(year0); // 0-23
                 int minute = random.nextInt(month0); // 0-59
-                int second = random.nextInt(60); // 0-59
+                int second = random.nextInt(59); // 0-59
                 return convertToLocalDateToDate(
                         LocalDate.of(currentYear, currentMonth, day), hour, minute, second
                 );
@@ -104,7 +122,7 @@ public class RandomUtil {
             dateString = dateString.replaceAll("<", "");
             dateString = dateString.replaceAll("!=", "");
             dateString = dateString.replaceAll("NOT IN", "");
-            dateString = dateString.replaceAll("'","");
+            dateString = dateString.replaceAll("'", "");
             try {
                 Date date = sdf.parse(dateString);
                 Calendar calendar = Calendar.getInstance();
@@ -124,10 +142,10 @@ public class RandomUtil {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-        } else if (condition.contains("IN")  || condition.startsWith("LIKE")) {
+        } else if (condition.contains("IN") || condition.startsWith("LIKE")) {
             String dateString = condition.replaceAll("IN", "");
             dateString = dateString.replaceAll("LIKE", "");
-            dateString = dateString.replaceAll("'","");
+            dateString = dateString.replaceAll("'", "");
             String[] split = dateString.split(",");
             Random random = new Random();
             int i = random.nextInt(split.length);
@@ -150,7 +168,7 @@ public class RandomUtil {
             }
         } else {
             try {
-                condition = condition.replaceAll("'","");
+                condition = condition.replaceAll("'", "");
                 Date date = sdf.parse(condition);
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);
@@ -192,7 +210,7 @@ public class RandomUtil {
         String dataType = columnDefinition.getColDataType().getDataType().toLowerCase();
         List<String> argumentsStringList = columnDefinition.getColDataType().getArgumentsStringList();
         int length = argumentsStringList != null ? Integer.parseInt(argumentsStringList.get(0)) : 1;
-        length = Math.min(length, 10);
+        length = Math.min(length, 15);
         int scale = 0;
         if (argumentsStringList != null && argumentsStringList.size() > 1) {
             scale = Integer.parseInt(argumentsStringList.get(1));

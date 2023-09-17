@@ -50,7 +50,7 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1 style="margin: 0;font-size: 24px;">数据源管理</h1>
+                        <h1 style="margin: 0;font-size: 24px;">数据集管理</h1>
                     </div><!-- /.col -->
                 </div><!-- /.row -->
             </div><!-- /.container-fluid -->
@@ -64,18 +64,18 @@
                 <div class="col-12">
                     <div class="col-xs-12">
                         <div class="box">
-<#--                            <form id="myForm" method="post" class="form-inline">-->
-<#--                                <div class="box-header">-->
-<#--                                    <div class="input-group">-->
-<#--                                        <a class="btn btn-primary dialog" style="margin-right: 3px;background-color: #3c8dbc;" data-widget="control-sidebar" ata-slide="true"-->
-<#--                                           data-title="新增" data-width="850" data-height="550" ><i class="fa fa-check"></i>新增</a>-->
+                            <form id="myForm" method="post" class="form-inline">
+                                <div class="box-header">
+                                    <div class="input-group">
+                                        <a class="btn btn-primary dialog" style="margin-right: 3px;background-color: #3c8dbc;" data-widget="control-sidebar" ata-slide="true"
+                                           data-title="新增" data-width="850" data-height="550" onclick="addData(this)"><i class="fa fa-check"></i>新增</a>
 
-<#--&lt;#&ndash;                                        <button type="button" class="btn btn-tool" data-widget="control-sidebar" ata-slide="true">&ndash;&gt;-->
-<#--&lt;#&ndash;                                            <i class="fas fa-th-large" style="color:#007bff"></i>&ndash;&gt;-->
-<#--&lt;#&ndash;                                        </button>&ndash;&gt;-->
-<#--                                    </div>-->
-<#--                                </div>-->
-<#--                            </form>-->
+<#--                                        <button type="button" class="btn btn-tool" data-widget="control-sidebar" ata-slide="true">-->
+<#--                                            <i class="fas fa-th-large" style="color:#007bff"></i>-->
+<#--                                        </button>-->
+                                    </div>
+                                </div>
+                            </form>
                             <div class="row" style="margin-top: 1px;">
                                 <div class="col-12">
                                     <div class="card">
@@ -87,11 +87,8 @@
                                                     <th><input name="userState" type="checkbox" onclick="checkItem(this)" class="minimal checkbox-toolbar"></th>
                                                     <th>行号</th>
                                                     <th>名称</th>
-                                                    <th>链接</th>
-                                                    <th>IP</th>
-                                                    <th>端口</th>
-                                                    <th>用户名</th>
-                                                    <th>密码</th>
+                                                    <th>数据源</th>
+                                                    <th>脚本</th>
                                                     <th>备注</th>
                                                     <th>创建时间</th>
                                                     <th>更新时间</th>
@@ -130,7 +127,7 @@
                     <p>确定要删除该记录吗？</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" onclick="deleteRecord()">删除</button>
+                    <button type="button" class="btn btn-danger" id="delButton">删除</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                 </div>
             </div>
@@ -147,47 +144,26 @@
         </div>
         <div class="modal-body">
             <div class="row">
-                <div class="col">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="name">名称</label>
                         <input id="name" type="text" class="form-control" style="height: 38px;">
                         <span id="classNameError1" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label for="ip">IP</label>
-                        <input id="ip" type="text" class="form-control" style="height: 38px;">
-                        <span id="linkError1" class="text-danger"></span>
-                    </div>
                 </div>
-                <div class="col">
+                <div class="col-md-6">
                     <div class="form-group">
-                        <label for="link">链接</label>
-                        <input id="link" type="text" class="form-control" style="height: 38px;">
-                        <span id="ipError" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="port">端口号</label>
-                        <input id="port" type="text" class="form-control" style="height: 38px;">
-                        <span id="portError" class="text-danger"></span>
+                        <label for="selectServiceName">数据源</label>
+                        <select class="form-control custom-select" id="selectServiceName" style="height: 38px;"></select>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label for="username">用户名</label>
-                        <input id="username" type="text" class="form-control" style="height: 38px;">
-                        <span id="usernameError" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label for="password">密码</label>
-                        <input id="password" type="text" class="form-control" style="height: 38px;">
-                        <span id="passwordError" class="text-danger"></span>
-                    </div>
-                </div>
+
+            <div class="form-group">
+                <label for="remarksInput">脚本</label>
+                <textarea id="script" class="form-control"></textarea>
             </div>
+
             <div class="form-group">
                 <label for="remarksInput">备注</label>
                 <textarea id="remarks" class="form-control"></textarea>
@@ -200,7 +176,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-primary" onclick="saveDatasource(event)">保存</button>
-            <button type="button" class="btn btn-primary" onclick="test(event)">连通性测试</button>
+<#--            <button type="button" class="btn btn-primary" onclick="test(event)">连通性测试</button>-->
         </div>
     </aside>
 
@@ -223,6 +199,6 @@
 </div>
 <!-- ./wrapper -->
 <@netCommon.commonScript />
-<script src="${request.contextPath}/static/js/class.js"></script>
+<script src="${request.contextPath}/static/js/dataset.js"></script>
 </body>
 </html>

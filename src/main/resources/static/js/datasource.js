@@ -115,6 +115,7 @@ function checkItem(checkbox) {
 function toLowerFirstLetter(str) {
     return str.charAt(0).toLowerCase() + str.slice(1);
 }
+
 function showConfirmationModal(event) {
     event.preventDefault();
     // $('#confirmationModal').modal('show');
@@ -171,7 +172,42 @@ function addData(button) {
 function del(button) {
     var row = $(button).closest('tr'); // 获取当前按钮所在的行
     var rowData = table.row(row).data(); // 使用DataTables API获取行数据
+    $("#confirmDeleteModal").modal('show');
 
+    const delButton = document.getElementById('delButton');
+
+    delButton.addEventListener('click', function (event) {
+        $('#confirmDeleteModal').modal('hide');
+        var obj = {};
+        obj.id = rowData.id;
+        var data = JSON.stringify(obj);
+
+        setTimeout(function () {
+            $.ajax({
+                url: base_url + "/delete",
+                type: "POST",
+                data: data,
+                contentType: "application/json",
+                success: function (response) {
+                    var Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                    Toast.fire({
+                        icon: 'success',
+                        title: '操作成功！'
+                    });
+                    refreshTableData();
+                },
+                error: function (xhr, status, error) {
+                    // 处理错误
+                    // toastr.error("操作失败");
+                }
+            });
+        }, 300);
+    });
 }
 
 $(document).ready(function () {
@@ -303,9 +339,9 @@ $(document).ready(function () {
                 'render': function (data, type, row) {
                     return `
                             <!-- 新增按钮 -->
-                            <button type="button" class="btn btn-sm btn-xs" data-widget="control-sidebar" data-slide="true" onclick="addData(this)">
-                              <i class="fas fa-plus"></i> <!-- 使用FontAwesome图标 -->
-                            </button>
+                            <!--<button type="button" class="btn btn-sm btn-xs" data-widget="control-sidebar" data-slide="true" onclick="addData(this)">
+                              <i class="fas fa-plus"></i> &lt;!&ndash; 使用FontAwesome图标 &ndash;&gt;
+                            </button>-->
                             
                             <!-- 修改按钮 -->
                             <button type="button" class="btn btn-sm btn-xs" data-widget="control-sidebar" data-slide="true" onclick="editData(this)">

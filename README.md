@@ -25,7 +25,9 @@
 - **数据源管理：** 新增数据源.
   ![](https://github.com/bombl/ImageHost/blob/main/datafactory3.png?raw=true)
   &nbsp;
-
+- **数据集管理：** 新增数据集.
+  ![](https://github.com/bombl/ImageHost/blob/main/datafactory4.png?raw=true)
+  &nbsp;
 ## 特性
 - 简单方便：基于SQL语句生成语句中所涉及表的数据，可自动生成多表关联数据；
 - 数据预览：生成的数据支持预览；

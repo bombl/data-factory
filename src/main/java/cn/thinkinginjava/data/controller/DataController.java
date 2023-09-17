@@ -73,7 +73,12 @@ public class DataController {
 
     @RequestMapping("/datasource")
     public String datasource(Model model) {
-        return "class";
+        return "datasource";
+    }
+
+    @RequestMapping("/dataset")
+    public String dataset(Model model) {
+        return "dataset";
     }
 
     @PostMapping("/generateData")

@@ -10,9 +10,9 @@ public class DataSourceUtil {
         dataSource.setUrl(dataSourceDTO.getLink());
         dataSource.setUsername(dataSourceDTO.getUsername());
         dataSource.setPassword(dataSourceDTO.getPassword());
-        dataSource.setMinIdle(5);      // 最小空闲连接数
+        dataSource.setMinIdle(10);      // 最小空闲连接数
         dataSource.setMaxActive(20);   // 最大活跃连接数
-        dataSource.setInitialSize(5); // 初始连接数
+        dataSource.setInitialSize(10); // 初始连接数
         dataSource.setMaxWait(60000);  // 最大等待时间，单位毫秒
         String dbType = dataSource.getDbType();
         System.out.println(dbType);

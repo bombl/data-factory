@@ -241,14 +241,19 @@ public class DataGenerator {
 
     private Object getRandomValueByWhereCondition(String tableFieldKey, ColumnDefinition columnDefinition, Object randomValue) {
         String whereCondition = whereMap.get(tableFieldKey);
-        if (whereCondition != null) {
-            if ("IS NULL".equals(whereCondition)) {
-                randomValue = "'NULL'";
-            } else if (startWithCondition(whereCondition)) {
-                randomValue = RandomUtil.generateRandomValue(columnDefinition, whereCondition);
-            } else {
-                randomValue = "'" + whereCondition + "'";
-            }
+        if (whereCondition == null) {
+            return randomValue;
+        }
+        if (whereCondition.contains("'DATASET'")) {
+            String datasetId = whereCondition.replace("'DATASET'", "");
+            return RandomUtil.getRandomValue(datasetId);
+        }
+        if ("IS NULL".equals(whereCondition)) {
+            randomValue = "'NULL'";
+        } else if (startWithCondition(whereCondition)) {
+            randomValue = RandomUtil.generateRandomValue(columnDefinition, whereCondition);
+        } else {
+            randomValue = "'" + whereCondition + "'";
         }
         return randomValue;
     }

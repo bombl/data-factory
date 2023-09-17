@@ -1,0 +1,15 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://www.ehcache.org/ehcache.xsd"
+         updateCheck="true"
+         monitoring="autodetect"
+         dynamicConfig="true">
+
+    <defaultCache
+            name = "default"
+            maxEntriesLocalHeap="10000"
+            eternal="false"
+            timeToIdleSeconds="3600"
+            overflowToDisk="false"
+            memoryStoreEvictionPolicy="LRU">
+    </defaultCache>
+</ehcache>

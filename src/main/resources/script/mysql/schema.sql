@@ -25,3 +25,22 @@ create table IF NOT EXISTS df_datasource
     update_at            datetime comment '更新时间',
     primary key (id)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+
+
+/*==============================================================*/
+/* Table: df_dataset                                            */
+/*==============================================================*/
+create table IF NOT EXISTS df_dataset
+(
+    id                   varchar(64) comment '主键',
+    datasource_id        varchar(64) comment '数据源ID',
+    name                 varchar(64) comment '名称',
+    script               varchar(2048) comment 'SQL语句',
+    enabled              int(1) default '1' comment '是否启用（1.是0.否）',
+    valid                int(1) default '1' comment '是否有效（1.是0.否）',
+    remarks              varchar(512) comment '备注',
+    create_at            datetime comment '创建时间',
+    update_at            datetime comment '更新时间',
+    primary key (id)
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
