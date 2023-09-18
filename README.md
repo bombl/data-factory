@@ -25,7 +25,7 @@
 - **数据源管理：** 新增数据源.
   ![](https://github.com/bombl/ImageHost/blob/main/datafactory3.png?raw=true)
   &nbsp;
-- **数据集管理：** 新增数据集.
+- **数据集管理：** 新增数据集，数据来源可以选择从数据集中获取.
   ![](https://github.com/bombl/ImageHost/blob/main/datafactory4.png?raw=true)
   &nbsp;
 ## 特性
