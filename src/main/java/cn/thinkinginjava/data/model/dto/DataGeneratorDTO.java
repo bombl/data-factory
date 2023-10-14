@@ -32,4 +32,6 @@ public class DataGeneratorDTO {
     private String id;
 
     private Map<String,String> extWhereMap = new HashMap<>();
+
+    private Map<String,String> ddlMap = new HashMap<>();
 }

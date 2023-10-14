@@ -11,6 +11,7 @@ public class DdlUtil {
         if (!StringUtils.hasLength(originalDDL)) {
             return originalDDL;
         }
+        originalDDL = originalDDL.replace("create table","CREATE TABLE");
         int createTableStart = originalDDL.indexOf("CREATE TABLE");
         int createTableEnd = originalDDL.indexOf("(", createTableStart);
         String sourceDdl = null;

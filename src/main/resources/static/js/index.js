@@ -1,4 +1,12 @@
 function generateData() {
+    const ddlMap = new Map();
+    // 遍历每个tab
+    $('#myTabs1 div').each(function() {
+        // 获取tab名
+        const tabName = $(this).text();
+        ddlMap.set(tabName,$(`#${tabName}-1 textarea`).val());
+    });
+
     // event.preventDefault(); // 阻止默认行为，即表单提交
     var obj = {};
     obj.id = $('#selectServiceName').val();
@@ -6,8 +14,7 @@ function generateData() {
     obj.querySql = $("#sqlTextarea").val();
     const dataMap = getCondition();
     obj.extWhereMap = Object.fromEntries(dataMap);
-    ;
-    debugger
+    obj.ddlMap = Object.fromEntries(ddlMap);
     // obj.ddlList = arr;
     var data = JSON.stringify(obj);
 
@@ -336,10 +343,36 @@ function showConfirmationModal(event) {
     });
 }
 
-function setCondition() {
+function changeDdl(button) {
+    const key = button.innerHTML;
+    // 隐藏所有内容
+    $('#tab-content1 .tab-pane').hide();
+    // 移除其他tab的激活状态
+    $('#myTabs1 div').removeClass('active');
+    // 激活当前tab
+    $(button).addClass('active');
+    // 获取当前选项卡对应的内容id
+    const tabId = $(button).find('div').attr('id');
+    // 显示对应的内容
+    $(`#${tabId}-1`).show();
+    const tabContentId = `${key}-1`;
+    $(`#${tabContentId}`).addClass('active').show();
+}
+function setCondition(btn) {
+
+    const ddlMap = new Map();
+    // 遍历每个tab
+    $('#myTabs1 div').each(function() {
+        // 获取tab名
+        const tabName = $(this).text();
+        let ddl = $(`#${tabName}-1 textarea`).val();
+        ddlMap.set(tabName,ddl);
+    });
+
     var obj = {};
     obj.id = $('#selectServiceName').val();
     obj.querySql = $("#sqlTextarea").val();
+    obj.ddlMap = Object.fromEntries(ddlMap);
     // obj.ddlList = arr;
     var data = JSON.stringify(obj);
 
@@ -353,15 +386,36 @@ function setCondition() {
             $('#tabs').empty();
             $('#tabContent').empty();
 
+            if (!btn) {
+                $('#myTabs1').empty();
+                $('#tab-content1').empty();
+            }
             // 假设 response.data 是你的数据对象，包含了标签页的信息和字段定义
             for (const [key, columnDefinitions] of Object.entries(response.data)) {
+                if (!btn) {
+                    // 创建一个新选项卡内容
+                    const tabContent = `
+                    <div class="tab-pane" id="${key}-1" role="tabpanel" aria-labelledby="${key}-tab1" style="display: none;">
+                        <!-- 在这里生成表结构输入区域 -->
+                        <textarea class="form-control" id="${key}-field1" onchange="setCondition(this)"></textarea>
+                    </div>`;
+                    $('#tab-content1').append(tabContent);
+
+                    $('#myTabs1').append(`
+                        <li class="nav-item">
+                            <div class="nav-link inactive-tab" id="${key}-tab1" role="tab1" onclick="changeDdl(this)">${key}</div>
+                        </li>
+                    `);
+
+                    $('#myTabs1 div:first').addClass('active');
+                    $('#tab-content1 div:first').addClass('active').show();
+                }
                 // 创建标签页按钮
                 $('#tabs').append(`
                     <li class="nav-item">
                         <a class="nav-link" id="${key}-tab" data-toggle="tab" href="#${key}" role="tab">${key}</a>
                     </li>
                 `);
-
                 // 创建标签页内容容器
                 $('#tabContent').append(`
                 <div class="tab-pane" id="${key}" role="tabpanel">
@@ -514,7 +568,7 @@ $(document).ready(function () {
             const st = document.getElementById('sqlTextarea');
             let previousValue = st.value; // 用于存储之前的文本内容
             if (previousValue !== '') {
-                setCondition();
+                setCondition(null);
             }
         },
         error: function () {
@@ -601,7 +655,7 @@ $(document).ready(function () {
         // 在失去焦点时触发的操作
         if (currentValue !== previousValue) {
             // 文本内容发生变化时触发 setCondition()
-            setCondition();
+            setCondition(null);
             previousValue = currentValue;
         }
     });

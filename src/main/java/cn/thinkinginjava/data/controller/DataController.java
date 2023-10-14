@@ -21,10 +21,14 @@ import cn.thinkinginjava.data.model.dto.DataGeneratorDTO;
 import cn.thinkinginjava.data.model.dto.Result;
 import cn.thinkinginjava.data.model.dto.SaveDataDTO;
 import cn.thinkinginjava.data.service.DataSourceService;
+import cn.thinkinginjava.data.utils.DdlUtil;
+import com.google.common.collect.Lists;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
@@ -36,10 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,7 +86,16 @@ public class DataController {
     @ResponseBody
     public Result<Map<String, List<String>>> generateData(@RequestBody DataGeneratorDTO dataGeneratorDTO) throws JSQLParserException {
         List<String> tableNames = new SQLParser(dataGeneratorDTO.getQuerySql()).parse();
+        Map<String, String> ddlMap = dataGeneratorDTO.getDdlMap();
+        if (MapUtils.isNotEmpty(ddlMap)) {
+            tableNames.removeAll(ddlMap.keySet());
+        }
         List<String> ddlList = dataSourceService.getDdl(dataGeneratorDTO.getId(), tableNames);
+        if (CollectionUtils.isNotEmpty(ddlMap.values())) {
+            for (String ddl : ddlMap.values()) {
+                ddlList.add(DdlUtil.rewriteDdl(ddl));
+            }
+        }
         dataGeneratorDTO.setDdlList(ddlList);
         DataGenerator dataGenerator = new DataGenerator(dataGeneratorDTO);
         Map<String, List<String>> result = dataGenerator.generateData();
@@ -111,7 +121,22 @@ public class DataController {
     public Result<Map<String, List<cn.thinkinginjava.data.model.dto.ColumnDefinition>>> parseSqlDefine(@RequestBody DataGeneratorDTO dataGeneratorDTO) throws JSQLParserException {
         Map<String, List<cn.thinkinginjava.data.model.dto.ColumnDefinition>> result = new HashMap<>();
         List<String> tableNames = new SQLParser(dataGeneratorDTO.getQuerySql()).parse();
+        Map<String, String> ddlMap = dataGeneratorDTO.getDdlMap();
+        if (MapUtils.isNotEmpty(ddlMap)) {
+            tableNames.removeAll(ddlMap.keySet());
+        }
         List<String> ddlList = dataSourceService.getDdl(dataGeneratorDTO.getId(), tableNames);
+        if (CollectionUtils.isNotEmpty(ddlMap.values())) {
+            for (String ddl : ddlMap.values()) {
+                ddlList.add(DdlUtil.rewriteDdl(ddl));
+            }
+        }
+        if (CollectionUtils.isEmpty(ddlList)) {
+            for (String tableName : tableNames) {
+                result.put(tableName,Lists.newArrayList());
+            }
+            return Result.successful(result);
+        }
         dataGeneratorDTO.setDdlList(ddlList);
         DataGenerator dataGenerator = new DataGenerator(dataGeneratorDTO);
         Map<String, String> whereCondition = dataGenerator.parseWhereCondition();
@@ -122,11 +147,11 @@ public class DataController {
             for (ColumnDefinition columnDefinition : columnDefinitions) {
                 cn.thinkinginjava.data.model.dto.ColumnDefinition definition = new cn.thinkinginjava.data.model.dto.ColumnDefinition();
                 BeanUtils.copyProperties(columnDefinition, definition);
-                String valueStr = whereCondition.get(createTable.getTable().getName() + "-" + columnDefinition.getColumnName());
+                String valueStr = whereCondition.get(createTable.getTable().getName().toUpperCase(Locale.ROOT) + "-" + columnDefinition.getColumnName().toUpperCase(Locale.ROOT));
                 setOptionValue(definition, valueStr);
                 definitions.add(definition);
             }
-            result.put(createTable.getTable().getName(), definitions);
+            result.put(createTable.getTable().getName().toUpperCase(Locale.ROOT), definitions);
         }
         return Result.successful(result);
     }

@@ -19,6 +19,7 @@ import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.util.TablesNamesFinder;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -105,7 +106,12 @@ public class DataGenerator {
     }
 
     private void applyExtWhereMap(Map<String, String> extWhereMap) {
-        whereMap.putAll(extWhereMap);
+        if (MapUtils.isEmpty(extWhereMap)) {
+            return;
+        }
+        for (String key : extWhereMap.keySet()) {
+            whereMap.put(key.toUpperCase(Locale.ROOT),extWhereMap.get(key));
+        }
     }
 
     public Map<String, String> parseWhereCondition() throws JSQLParserException {
@@ -142,7 +148,7 @@ public class DataGenerator {
     private void generateMockData() {
         for (String tableName : involvedTables) {
             List<ColumnDefinition> columnDefinitions = tableColumnDefinitions.get(tableName.toUpperCase(Locale.ROOT));
-            generateDataForTable(tableName, columnDefinitions);
+            generateDataForTable(tableName.toUpperCase(Locale.ROOT), columnDefinitions);
         }
     }
 
@@ -155,7 +161,7 @@ public class DataGenerator {
 
     private void saveTableColumnDefinitions() {
         for (CreateTable tableDefinition : tableDefinitions) {
-            String tableName = tableDefinition.getTable().getName();
+            String tableName = tableDefinition.getTable().getName().toUpperCase(Locale.ROOT);
             List<ColumnDefinition> columnDefinitions = tableDefinition.getColumnDefinitions();
             tableColumnDefinitions.put(tableName, columnDefinitions);
         }
@@ -178,9 +184,9 @@ public class DataGenerator {
             String rightItems = rightItemsList.toString();
             Column column = (Column) leftExpression;
             if (inExpression.toString().toUpperCase(Locale.ROOT).contains("NOT")) {
-                whereMap.put(table.getName() + "-" + column.getColumnName().toUpperCase(Locale.ROOT), "NOT IN" + rightItems);
+                whereMap.put(table.getName().toUpperCase(Locale.ROOT) + "-" + column.getColumnName().toUpperCase(Locale.ROOT), "NOT IN" + rightItems);
             } else {
-                whereMap.put(table.getName() + "-" + column.getColumnName().toUpperCase(Locale.ROOT), "IN" + rightItems);
+                whereMap.put(table.getName().toUpperCase(Locale.ROOT) + "-" + column.getColumnName().toUpperCase(Locale.ROOT), "IN" + rightItems);
             }
         }
     }
@@ -195,8 +201,8 @@ public class DataGenerator {
                 String columnName = columnDefinition.getColumnName().toUpperCase(Locale.ROOT);
                 String tableFieldKey = tableName + "-" + columnName;
                 RelationshipField relationshipField = relationshipMap.get(tableFieldKey);
-                if (relationshipField != null) {
-                    List<Object> values = cacheMap.get(relationshipField.getTableName() + "-" + relationshipField.getColumn().toUpperCase(Locale.ROOT));
+                if (relationshipField != null && whereMap.get(tableFieldKey) == null) {
+                    List<Object> values = cacheMap.get(relationshipField.getTableName().toUpperCase(Locale.ROOT) + "-" + relationshipField.getColumn().toUpperCase(Locale.ROOT));
                     if (values == null) {
                         List<Object> objects = cacheMap.get(tableFieldKey);
                         if (objects == null) {
@@ -327,7 +333,7 @@ public class DataGenerator {
 
             if (leftTable != null && leftTable.getTableName() != null
                     && rightTable != null && rightTable.getTableName() == null) {
-                whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), rightTable.getColumn());
+                whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), rightTable.getColumn().toUpperCase(Locale.ROOT));
                 return;
             }
 
@@ -371,7 +377,7 @@ public class DataGenerator {
             RelationshipField leftTable = getColumnName(leftExpression);
             Expression rightExpression = greaterThanEquals.getRightExpression();
             RelationshipField rightTable = getColumnName(rightExpression);
-            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), ">=" + rightTable.getColumn());
+            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), ">=" + rightTable.getColumn().toUpperCase(Locale.ROOT));
         }
 
         if (expression instanceof GreaterThan) {
@@ -380,7 +386,7 @@ public class DataGenerator {
             RelationshipField leftTable = getColumnName(leftExpression);
             Expression rightExpression = greaterThan.getRightExpression();
             RelationshipField rightTable = getColumnName(rightExpression);
-            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), ">" + rightTable.getColumn());
+            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), ">" + rightTable.getColumn().toUpperCase(Locale.ROOT));
         }
 
         if (expression instanceof MinorThanEquals) {
@@ -389,7 +395,7 @@ public class DataGenerator {
             RelationshipField leftTable = getColumnName(leftExpression);
             Expression rightExpression = minorThanEquals.getRightExpression();
             RelationshipField rightTable = getColumnName(rightExpression);
-            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), "<=" + rightTable.getColumn());
+            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), "<=" + rightTable.getColumn().toUpperCase(Locale.ROOT));
         }
 
         if (expression instanceof MinorThan) {
@@ -398,7 +404,7 @@ public class DataGenerator {
             RelationshipField leftTable = getColumnName(leftExpression);
             Expression rightExpression = minorThan.getRightExpression();
             RelationshipField rightTable = getColumnName(rightExpression);
-            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), "<" + rightTable.getColumn());
+            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), "<" + rightTable.getColumn().toUpperCase(Locale.ROOT));
         }
 
         if (expression instanceof LikeExpression) {
@@ -407,7 +413,7 @@ public class DataGenerator {
             RelationshipField leftTable = getColumnName(leftExpression);
             Expression rightExpression = likeExpression.getRightExpression();
             RelationshipField rightTable = getColumnName(rightExpression);
-            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), "LIKE " + rightTable.getColumn());
+            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), "LIKE " + rightTable.getColumn().toUpperCase(Locale.ROOT));
         }
 
         if (expression instanceof NotEqualsTo) {
@@ -416,7 +422,7 @@ public class DataGenerator {
             RelationshipField leftTable = getColumnName(leftExpression);
             Expression rightExpression = notEqualsTo.getRightExpression();
             RelationshipField rightTable = getColumnName(rightExpression);
-            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), "!=" + rightTable.getColumn());
+            whereMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), "!=" + rightTable.getColumn().toUpperCase(Locale.ROOT));
         }
 
         if (expression instanceof IsNullExpression) {
@@ -428,10 +434,10 @@ public class DataGenerator {
     }
 
     private void setRelationshipField(RelationshipField leftTable, RelationshipField rightTable) {
-        RelationshipField leftRelationshipField = relationshipMap.get(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT));
+        RelationshipField leftRelationshipField = relationshipMap.get(leftTable.getTableName().toUpperCase(Locale.ROOT) + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT));
         if (leftRelationshipField == null) {
-            RelationshipField relationshipField = new RelationshipField(rightTable.getTableName(), rightTable.getColumn().toUpperCase(Locale.ROOT));
-            relationshipMap.put(leftTable.getTableName() + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), relationshipField);
+            RelationshipField relationshipField = new RelationshipField(rightTable.getTableName().toUpperCase(Locale.ROOT), rightTable.getColumn().toUpperCase(Locale.ROOT));
+            relationshipMap.put(leftTable.getTableName().toUpperCase(Locale.ROOT) + "-" + leftTable.getColumn().toUpperCase(Locale.ROOT), relationshipField);
         }
     }
 

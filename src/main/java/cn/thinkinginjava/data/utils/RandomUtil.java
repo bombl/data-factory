@@ -40,13 +40,13 @@ public class RandomUtil {
         }
         if (dataType.contains("tinyint") || dataType.contains("smallint") || dataType.contains("mediumint")) {
             return String.valueOf(new Random().nextInt(9));
-        }else if (dataType.contains("int") || dataType.contains("number") || dataType.contains("bigint")) {
+        } else if (dataType.contains("int") || dataType.contains("number") || dataType.contains("bigint") || dataType.contains("numeric")) {
             return String.valueOf(new Random().nextInt(Integer.MAX_VALUE));
         } else if (dataType.contains("varchar") || dataType.contains("char") || dataType.contains("text")) {
             return "'" + RandomUtil.generateRandomString(length) + "'";
         } else if (dataType.contains("decimal") || dataType.contains("float") || dataType.contains("double")) {
             return RandomUtil.generateDecimalValue(length, scale);
-        } else if (dataType.contains("date")) {
+        } else if (dataType.contains("date") || dataType.contains("timestamp")) {
             return RandomUtil.generateRandomDate();
         }
         return "'" + RandomUtil.generateRandomString(length) + "'";
@@ -253,9 +253,8 @@ public class RandomUtil {
         List<String> valuesList = new ArrayList<>();
 
         // 定义正则表达式匹配数字部分
-        Pattern pattern = Pattern.compile("'(\\d+)'");
+        Pattern pattern = Pattern.compile("'([^']+)'");
         Matcher matcher = pattern.matcher(input);
-
         // 使用正则表达式匹配数字
         while (matcher.find()) {
             String matchedValue = matcher.group(1);
@@ -268,7 +267,7 @@ public class RandomUtil {
     private static String generateInValue(List<String> values) {
         // 在值列表中随机选择一个值作为结果
         int randomIndex = new Random().nextInt(values.size());
-        return values.get(randomIndex);
+        return "'" + values.get(randomIndex) + "'";
     }
 
     private static String generateNotInValue(ColumnDefinition columnDefinition, List<String> values) {
@@ -277,7 +276,7 @@ public class RandomUtil {
         do {
             randomValue = generateRandomValue(columnDefinition);
         } while (values.contains(randomValue));
-        return randomValue;
+        return "'" + randomValue + "'";
     }
 
     private static String generateLikeValue(String dataType, int length, String pattern) {
@@ -312,7 +311,7 @@ public class RandomUtil {
     private static String generateNotEqualValue(String dataType, int length, int scale, String notEqualValue) {
         Random random = new Random();
 
-        if (dataType.contains("int")) {
+        if (dataType.contains("int") || dataType.contains("numeric")) {
             int randomValue;
             do {
                 randomValue = random.nextInt(Integer.parseInt(notEqualValue)); // 生成一个随机整数
@@ -325,7 +324,7 @@ public class RandomUtil {
                 randomValue = String.format("%." + scale + "f", Double.valueOf(randomValue));
             } while (String.valueOf(randomValue).equals(notEqualValue)); // 重复生成，直到不等于指定值
             return String.format("%." + scale + "f", Double.valueOf(randomValue));
-        } else if (dataType.contains("date")) {
+        } else if (dataType.contains("date") || dataType.contains("timestamp")) {
             return generateRandomDate();
         } else {
             return "NULL";
@@ -335,13 +334,13 @@ public class RandomUtil {
     private static String generateLessValue(String dataType, int length, int scale, double maxValue) {
         Random random = new Random();
 
-        if (dataType.contains("int")) {
+        if (dataType.contains("int") || dataType.contains("numeric")) {
             int randomValue = random.nextInt((int) maxValue); // 生成一个小于最大值的随机整数
             return String.valueOf(randomValue);
         } else if (dataType.contains("decimal") || dataType.contains("number")) {
             double randomValue = random.nextDouble() * (maxValue); // 生成一个小于最大值的随机浮点数
             return String.format("%." + scale + "f", randomValue);
-        } else if (dataType.contains("date")) {
+        } else if (dataType.contains("date") || dataType.contains("timestamp")) {
             // 生成随机日期
             // 此处可以调用生成日期的方法，根据需要返回日期字符串
             return generateRandomDate();
@@ -353,13 +352,13 @@ public class RandomUtil {
     private static String generateLessOrEqualValue(String dataType, int length, int scale, double maxValue) {
         Random random = new Random();
 
-        if (dataType.contains("int")) {
+        if (dataType.contains("int") || dataType.contains("numeric")) {
             int randomValue = random.nextInt((int) maxValue + 1); // 生成一个小于等于最大值的随机整数
             return String.valueOf(randomValue);
         } else if (dataType.contains("decimal") || dataType.contains("number")) {
             double randomValue = random.nextDouble() * (maxValue + 1); // 生成一个小于等于最大值的随机浮点数
             return String.format("%." + scale + "f", randomValue);
-        } else if (dataType.contains("date")) {
+        } else if (dataType.contains("date") || dataType.contains("timestamp")) {
             // 生成随机日期
             // 此处可以调用生成日期的方法，根据需要返回日期字符串
             return generateRandomDate();
@@ -369,13 +368,13 @@ public class RandomUtil {
     }
 
     private static String generateGreaterOrEqualValue(String dataType, int length, int scale, int minValue, String condition) {
-        if (dataType.contains("int")) {
+        if (dataType.contains("int") || dataType.contains("numeric")) {
             int randomValue = minValue + new Random().nextInt(100 - minValue + 1); // 生成一个大于等于 minValue 的随机整数
             return String.valueOf(randomValue);
         } else if (dataType.contains("decimal") || dataType.contains("number")) {
             double randomValue = minValue + new Random().nextDouble() * (100 - minValue); // 生成一个大于等于 minValue 的随机浮点数
             return String.format("%.2f", randomValue);
-        } else if (dataType.contains("date")) {
+        } else if (dataType.contains("date") || dataType.contains("timestamp")) {
             return generateRandomDate(condition);
         } else {
             return "NULL";
@@ -383,13 +382,13 @@ public class RandomUtil {
     }
 
     private static String generateGreaterValue(String dataType, int length, int scale, int minValue) {
-        if (dataType.contains("int")) {
+        if (dataType.contains("int") || dataType.contains("numeric")) {
             int randomValue = minValue + new Random().nextInt(100 - minValue); // 生成一个大于 minValue 的随机整数
             return String.valueOf(randomValue);
         } else if (dataType.contains("decimal") || dataType.contains("number")) {
             double randomValue = minValue + new Random().nextDouble() * (100 - minValue); // 生成一个大于 minValue 的随机浮点数
             return formatDecimalValue(randomValue, length, scale);
-        } else if (dataType.contains("date")) {
+        } else if (dataType.contains("date") || dataType.contains("timestamp")) {
             return generateRandomDate();
         } else {
             return "NULL";

@@ -7,6 +7,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -26,7 +27,7 @@ public class AliasPaser {
         // 获取表名和表别名
         Table table = (Table) plainSelect.getFromItem();
         if (table.getAlias() != null) {
-            aliasMap.put(table.getAlias().getName(), table.getName());
+            aliasMap.put(table.getAlias().getName(), table.getName().toUpperCase(Locale.ROOT));
         }
         if (joins == null) {
             return aliasMap;
@@ -36,7 +37,7 @@ public class AliasPaser {
             if (rightItem instanceof Table) {
                 Table joinTable = (Table) rightItem;
                 if (joinTable.getAlias() != null) {
-                    aliasMap.put(joinTable.getAlias().getName(), joinTable.getName());
+                    aliasMap.put(joinTable.getAlias().getName(), joinTable.getName().toUpperCase(Locale.ROOT));
                 }
             }
         }

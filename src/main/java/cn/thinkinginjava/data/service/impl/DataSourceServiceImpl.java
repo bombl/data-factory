@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,9 @@ public class DataSourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasou
     @Override
     public List<String> getDdl(String id, List<String> tableNames) {
         List<String> ddlList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(ddlList)) {
+            return ddlList;
+        }
         for (String tableName : tableNames) {
             Datasource datasource = getById(id);
             DatasourceDTO datasourceDTO = new DatasourceDTO();

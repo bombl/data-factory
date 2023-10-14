@@ -49,6 +49,13 @@
             max-height: 450px; /* 设置最大高度，根据需要调整 */
             overflow-y: auto; /* 启用垂直滚动条 */
         }
+        .active-tab {
+            color: black; /* 设置未选中的标签颜色 */
+        }
+
+        .inactive-tab {
+            color: blue; /* 设置选中的标签颜色 */
+        }
     </style>
     <title>DATA</title>
 </head>
@@ -98,24 +105,46 @@
                                 <!-- textarea -->
                                 <div class="form-group">
                                 <textarea class="form-control" rows="3" id="sqlTextarea"
-                                          placeholder="请输入SQL">select * from JS_YWDZ_ZS_JFXXCSJKDZ  jfxx
-        LEFT JOIN WD_SBJBJGDZ dz ON jfxx.SBJBJG_DM =dz.SBJBJG_DM and dz.yxbz='Y' and dz.xybz='Y'
-        where jfxx.SWJG_DM= '14512000000' AND jfxx.DZLX in ('0','1') AND jfxx.DZNY ='202308'
-        AND dz.SBJBJG_DM IN ('100001','100002') and jfxx.SJQY = '1' and jfxx.XM_DM in ('0','1','2','3','4')</textarea>
+                                          placeholder="请输入SQL"></textarea>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
+
             <div class="card">
-                <!-- 添加选项卡容器 -->
-                <div class="row" id="tabContainer" style="overflow-x: auto;min-width: 400px;">
+                <div class="card-header">
+                    <h3 class="card-title">表结构</h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
                     <!-- 选项卡头部 -->
-                    <ul class="nav nav-tabs" style="margin-left: 8px;" id="myTabs">
+                    <ul class="nav nav-tabs" style="margin-left: 8px;" id="myTabs1" role="tablist">
                         <!-- JavaScript 将动态生成选项卡头部 -->
                     </ul>
+                    <!-- 添加选项卡容器 -->
+                    <div class="tab-content" id="tab-content1" style="margin-left: 8px;">
+                        <!-- JavaScript 将动态生成选项卡内容 -->
+                    </div>
+                </div>
+            </div>
 
+            <div class="card">
+                <!-- 选项卡头部 -->
+                <ul class="nav nav-tabs" style="margin-left: 8px;" id="myTabs">
+                    <!-- JavaScript 将动态生成选项卡头部 -->
+                </ul>
+                <!-- 添加选项卡容器 -->
+                <div class="row" id="tabContainer" style="overflow-x: auto;min-width: 80px;">
                     <!-- 选项卡内容 -->
                     <div class="tab-content" id="tab-content">
                         <!-- JavaScript 将动态生成选项卡内容 -->
