@@ -448,7 +448,7 @@ function setCondition(btn) {
                                             </select>
                                         </td>
                                         <td>
-                                            ${column.colDataType.dataType === 'DATE' ?
+                                            ${column.colDataType.dataType === 'DATE' || column.colDataType.dataType === 'date'?
                                                 `<input type="datetime-local" value="${column.value !== null ? column.value.replace(' ', 'T') : ''}">` :
                                                 (column.value !== null ? `<input type="text" value="${column.value}">` : '<input type="text" value="">')}
                                         </td>

@@ -73,22 +73,18 @@ public class DataSourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasou
                 if (databaseProductName.contains("mysql")) {
                     sql = "SHOW CREATE TABLE " + tableName;
                 } else if (databaseProductName.contains("postgresql")) {
-                    sql = "\n" +
-                            "SELECT\n" +
-                            "    'CREATE TABLE ' || table_name || ' (' ||\n" +
-                            "    string_agg(column_name || ' ' ||\n" +
-                            "    CASE\n" +
-                            "        WHEN udt_name = 'numeric' THEN 'numeric(' || decode(numeric_precision,null,1,numeric_precision) || ',' || decode(numeric_scale,null,0,numeric_scale) || ')'\n" +
-                            "        WHEN udt_name = 'character' THEN 'character(' || character_maximum_length || ')'\n" +
-                            "        WHEN udt_name = 'bpchar' THEN 'char(' || character_maximum_length || ')'\n" +
-                            "        ELSE udt_name\n" +
-                            "    END, ', ') || ');' AS create_statement\n" +
-                            "FROM\n" +
-                            "    information_schema.columns\n" +
-                            "WHERE\n" +
-                            "    table_name = '" + tableName.toLowerCase(Locale.ROOT) + "'\n" +
-                            "GROUP BY\n" +
-                            "    table_name;";
+                    sql = "SELECT 'CREATE TABLE ' || table_name || ' (' || " +
+                            "string_agg(column_name || ' ' || " +
+                            "CASE " +
+                            "WHEN information_schema.columns.udt_name = 'numeric' THEN 'numeric(10, 2)'" +
+                            "WHEN information_schema.columns.udt_name = 'character' THEN 'character(' || information_schema.columns.character_maximum_length || ')'" +
+                            "WHEN information_schema.columns.udt_name = 'bpchar' THEN 'char(' || information_schema.columns.character_maximum_length || ')'" +
+                            "WHEN information_schema.columns.udt_name = 'timestamp' THEN 'date'" +
+                            "ELSE information_schema.columns.udt_name " +
+                            "END, ', ') || ');' AS create_statement " +
+                            "FROM information_schema.columns " +
+                            "WHERE information_schema.columns.table_name = '" + tableName.toLowerCase(Locale.ROOT) + "' " +
+                            "GROUP BY information_schema.columns.table_name;";
                 } else if (databaseProductName.contains("oracle")) {
                     sql = "SELECT dbms_metadata.get_ddl('TABLE','" + tableName + "' ) FROM dual";
                 }
