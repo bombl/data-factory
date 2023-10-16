@@ -229,7 +229,7 @@ function handleApiResponse(response) {
     const copyValue = document.getElementById('copyValue');
     copyValue.addEventListener('click', function (event) {
         // 获取激活的选项卡的名称（可以根据您的需求进行更改）
-        const activeTabName = $('.nav-link.active').html();
+        const activeTabName = $('#myTabs .nav-link.active').html();
 
         // 使用选项卡名称构建激活选项卡的ID
         const activeTabId = `tab-${activeTabName}`;
@@ -397,7 +397,7 @@ function setCondition(btn) {
                     const tabContent = `
                     <div class="tab-pane" id="${key}-1" role="tabpanel" aria-labelledby="${key}-tab1" style="display: none;">
                         <!-- 在这里生成表结构输入区域 -->
-                        <textarea class="form-control" id="${key}-field1" onchange="setCondition(this)"></textarea>
+                        <textarea class="form-control" id="${key}-field1" onchange="setCondition(this)">${columnDefinitions[0].ddl}</textarea>
                     </div>`;
                     $('#tab-content1').append(tabContent);
 

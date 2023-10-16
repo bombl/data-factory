@@ -159,6 +159,11 @@
             <version>2.10.6</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.6.0</version>
+        </dependency>
 
     </dependencies>
 

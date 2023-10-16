@@ -18,5 +18,5 @@ public class ColumnDefinition implements Serializable {
     private List<String> columnSpecs;
     private String option;
     private String value;
-
+    private String ddl;
 }

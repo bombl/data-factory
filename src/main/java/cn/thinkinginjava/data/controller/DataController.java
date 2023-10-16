@@ -88,11 +88,18 @@ public class DataController {
         List<String> tableNames = new SQLParser(dataGeneratorDTO.getQuerySql()).parse();
         Map<String, String> ddlMap = dataGeneratorDTO.getDdlMap();
         if (MapUtils.isNotEmpty(ddlMap)) {
-            tableNames.removeAll(ddlMap.keySet());
+            for (String key : ddlMap.keySet()) {
+                if (StringUtils.isNotEmpty(ddlMap.get(key))) {
+                    tableNames.remove(key);
+                }
+            }
         }
         List<String> ddlList = dataSourceService.getDdl(dataGeneratorDTO.getId(), tableNames);
         if (CollectionUtils.isNotEmpty(ddlMap.values())) {
             for (String ddl : ddlMap.values()) {
+                if (StringUtils.isEmpty(ddl)) {
+                    continue;
+                }
                 ddlList.add(DdlUtil.rewriteDdl(ddl));
             }
         }
@@ -123,11 +130,18 @@ public class DataController {
         List<String> tableNames = new SQLParser(dataGeneratorDTO.getQuerySql()).parse();
         Map<String, String> ddlMap = dataGeneratorDTO.getDdlMap();
         if (MapUtils.isNotEmpty(ddlMap)) {
-            tableNames.removeAll(ddlMap.keySet());
+            for (String key : ddlMap.keySet()) {
+                if (StringUtils.isNotEmpty(ddlMap.get(key))) {
+                    tableNames.remove(key);
+                }
+            }
         }
         List<String> ddlList = dataSourceService.getDdl(dataGeneratorDTO.getId(), tableNames);
         if (CollectionUtils.isNotEmpty(ddlMap.values())) {
             for (String ddl : ddlMap.values()) {
+                if (StringUtils.isEmpty(ddl)) {
+                    continue;
+                }
                 ddlList.add(DdlUtil.rewriteDdl(ddl));
             }
         }
@@ -147,6 +161,7 @@ public class DataController {
             for (ColumnDefinition columnDefinition : columnDefinitions) {
                 cn.thinkinginjava.data.model.dto.ColumnDefinition definition = new cn.thinkinginjava.data.model.dto.ColumnDefinition();
                 BeanUtils.copyProperties(columnDefinition, definition);
+                definition.setDdl(ddl);
                 String valueStr = whereCondition.get(createTable.getTable().getName().toUpperCase(Locale.ROOT) + "-" + columnDefinition.getColumnName().toUpperCase(Locale.ROOT));
                 setOptionValue(definition, valueStr);
                 definitions.add(definition);

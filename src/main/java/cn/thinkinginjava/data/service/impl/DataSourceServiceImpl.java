@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Slf4j
 @Service
@@ -57,7 +58,7 @@ public class DataSourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasou
     @Override
     public List<String> getDdl(String id, List<String> tableNames) {
         List<String> ddlList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(ddlList)) {
+        if (CollectionUtils.isEmpty(tableNames)) {
             return ddlList;
         }
         for (String tableName : tableNames) {
@@ -71,6 +72,23 @@ public class DataSourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasou
                 String sql = "";
                 if (databaseProductName.contains("mysql")) {
                     sql = "SHOW CREATE TABLE " + tableName;
+                } else if (databaseProductName.contains("postgresql")) {
+                    sql = "\n" +
+                            "SELECT\n" +
+                            "    'CREATE TABLE ' || table_name || ' (' ||\n" +
+                            "    string_agg(column_name || ' ' ||\n" +
+                            "    CASE\n" +
+                            "        WHEN udt_name = 'numeric' THEN 'numeric(' || decode(numeric_precision,null,1,numeric_precision) || ',' || decode(numeric_scale,null,0,numeric_scale) || ')'\n" +
+                            "        WHEN udt_name = 'character' THEN 'character(' || character_maximum_length || ')'\n" +
+                            "        WHEN udt_name = 'bpchar' THEN 'char(' || character_maximum_length || ')'\n" +
+                            "        ELSE udt_name\n" +
+                            "    END, ', ') || ');' AS create_statement\n" +
+                            "FROM\n" +
+                            "    information_schema.columns\n" +
+                            "WHERE\n" +
+                            "    table_name = '" + tableName.toLowerCase(Locale.ROOT) + "'\n" +
+                            "GROUP BY\n" +
+                            "    table_name;";
                 } else if (databaseProductName.contains("oracle")) {
                     sql = "SELECT dbms_metadata.get_ddl('TABLE','" + tableName + "' ) FROM dual";
                 }
