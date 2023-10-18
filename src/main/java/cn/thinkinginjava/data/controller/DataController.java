@@ -168,6 +168,11 @@ public class DataController {
             }
             result.put(createTable.getTable().getName().toUpperCase(Locale.ROOT), definitions);
         }
+        for (String key : tableNames) {
+            if (!result.containsKey(key)) {
+                result.put(key.toUpperCase(Locale.ROOT), Lists.newArrayList());
+            }
+        }
         return Result.successful(result);
     }
 

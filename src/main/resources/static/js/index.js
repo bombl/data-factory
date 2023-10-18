@@ -397,7 +397,7 @@ function setCondition(btn) {
                     const tabContent = `
                     <div class="tab-pane" id="${key}-1" role="tabpanel" aria-labelledby="${key}-tab1" style="display: none;">
                         <!-- 在这里生成表结构输入区域 -->
-                        <textarea class="form-control" id="${key}-field1" onchange="setCondition(this)">${columnDefinitions[0].ddl}</textarea>
+                        <textarea class="form-control" id="${key}-field1" onchange="setCondition(this)">${columnDefinitions.length > 0 ? columnDefinitions[0].ddl : ''}</textarea>
                     </div>`;
                     $('#tab-content1').append(tabContent);
 
@@ -430,7 +430,7 @@ function setCondition(btn) {
                                 </tr>
                             </thead>
                             <tbody>
-                                ${columnDefinitions.map(column => `
+                                ${columnDefinitions.length > 0 ? columnDefinitions.map(column => `
                                     <tr>
                                         <td>${column.columnName}</td>
                                         <td>${column.colDataType.dataType}${column.colDataType.argumentsStringList === null ? '' : `(${column.colDataType.argumentsStringList})`}</td>
@@ -454,7 +454,7 @@ function setCondition(btn) {
                                         </td>
                                     </tr>
                                     </tr>
-                                `).join('')}
+                                `).join('') : ''}
                             </tbody>
                         </table>
                     </div>

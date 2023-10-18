@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -89,13 +90,19 @@ public class DataSourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasou
                     sql = "SELECT dbms_metadata.get_ddl('TABLE','" + tableName + "' ) FROM dual";
                 }
                 try {
-                    ddlList.add(DdlUtil.rewriteDdl(executeQuerySql(connection, sql)));
+                    String ddl = DdlUtil.rewriteDdl(executeQuerySql(connection, sql));
+                    if (StringUtils.isNotBlank(ddl)) {
+                        ddlList.add(ddl);
+                    }
                 } catch (Exception e) {
                     if (databaseProductName.contains("oracle")) {
                         sql = "SELECT T.TABLE_OWNER FROM ALL_SYNONYMS  T WHERE T.SYNONYM_NAME = '" + tableName + "'";
                         String schema = executeQuerySql(connection, sql);
                         sql = "SELECT dbms_metadata.get_ddl('TABLE','" + tableName + "','" + schema + "') FROM dual";
-                        ddlList.add(DdlUtil.rewriteDdl(executeQuerySql(connection, sql)));
+                        String ddl = DdlUtil.rewriteDdl(executeQuerySql(connection, sql));
+                        if (StringUtils.isNotBlank(ddl)) {
+                            ddlList.add(ddl);
+                        }
                     }
                 }
             } catch (SQLException ignored) {
@@ -144,7 +151,10 @@ public class DataSourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasou
             for (String sql : sqls) {
                 try (PreparedStatement statement = connection.prepareStatement(sql.replace(";", ""))) {
                     statement.executeUpdate();
-                    connection.commit();
+                    try {
+                        connection.commit();
+                    } catch (Exception ignored) {
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.info("Sql执行异常.");
