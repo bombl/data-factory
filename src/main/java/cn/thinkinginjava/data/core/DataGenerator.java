@@ -202,18 +202,26 @@ public class DataGenerator {
                 String tableFieldKey = tableName + "-" + columnName;
                 RelationshipField relationshipField = relationshipMap.get(tableFieldKey);
                 if (relationshipField != null && whereMap.get(tableFieldKey) == null) {
-                    List<Object> values = cacheMap.get(relationshipField.getTableName().toUpperCase(Locale.ROOT) + "-" + relationshipField.getColumn().toUpperCase(Locale.ROOT));
+                    String relationshipTableKey = relationshipField.getTableName().toUpperCase(Locale.ROOT) + "-" + relationshipField.getColumn().toUpperCase(Locale.ROOT);
+                    List<Object> values = cacheMap.get(relationshipTableKey);
                     if (values == null) {
-                        List<Object> objects = cacheMap.get(tableFieldKey);
-                        if (objects == null) {
-                            objects = new ArrayList<>();
+                        if (whereMap.get(relationshipTableKey) != null) {
+                            Object randomValue = RandomUtil.generateRandomValue(columnDefinition);
+                            randomValue = getRandomValueByWhereCondition(relationshipTableKey, columnDefinition, randomValue);
+                            randomValue = getRandomValueByDefaultValue(relationshipTableKey, randomValue);
+                            rowData.put(columnName, randomValue);
+                        } else {
+                            List<Object> objects = cacheMap.get(tableFieldKey);
+                            if (objects == null) {
+                                objects = new ArrayList<>();
+                            }
+                            Object randomValue = RandomUtil.generateRandomValue(columnDefinition);
+                            randomValue = getRandomValueByWhereCondition(tableFieldKey, columnDefinition, randomValue);
+                            randomValue = getRandomValueByDefaultValue(tableFieldKey, randomValue);
+                            objects.add(randomValue);
+                            cacheMap.put(tableFieldKey, objects);
+                            rowData.put(columnName, randomValue);
                         }
-                        Object randomValue = RandomUtil.generateRandomValue(columnDefinition);
-                        randomValue = getRandomValueByWhereCondition(tableFieldKey, columnDefinition, randomValue);
-                        randomValue = getRandomValueByDefaultValue(tableFieldKey, randomValue);
-                        objects.add(randomValue);
-                        cacheMap.put(tableFieldKey, objects);
-                        rowData.put(columnName, randomValue);
                     } else {
                         rowData.put(columnName, values.get(i));
                     }

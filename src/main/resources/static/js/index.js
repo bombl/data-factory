@@ -358,6 +358,10 @@ function changeDdl(button) {
     const tabContentId = `${key}-1`;
     $(`#${tabContentId}`).addClass('active').show();
 }
+
+function showTab(d) {
+    $(d).show();
+}
 function setCondition(btn) {
 
     const ddlMap = new Map();
@@ -395,7 +399,7 @@ function setCondition(btn) {
                 if (!btn) {
                     // 创建一个新选项卡内容
                     const tabContent = `
-                    <div class="tab-pane" id="${key}-1" role="tabpanel" aria-labelledby="${key}-tab1" style="display: none;">
+                    <div class="tab-pane" id="${key}-1" role="tabpanel" aria-labelledby="${key}-tab1"  onclick="showTab(this)" style="display: none;">
                         <!-- 在这里生成表结构输入区域 -->
                         <textarea class="form-control" id="${key}-field1" onchange="setCondition(this)">${columnDefinitions.length > 0 ? columnDefinitions[0].ddl : ''}</textarea>
                     </div>`;

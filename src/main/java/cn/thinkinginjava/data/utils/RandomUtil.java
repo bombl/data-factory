@@ -33,7 +33,10 @@ public class RandomUtil {
         String dataType = columnDefinition.getColDataType().getDataType().toLowerCase();
         List<String> argumentsStringList = columnDefinition.getColDataType().getArgumentsStringList();
         int length = argumentsStringList != null ? Integer.parseInt(argumentsStringList.get(0)) : 15;
-        length = Math.min(length, 15);
+        length = Math.min(length, 5);
+        if (argumentsStringList == null) {
+            length = 1;
+        }
         int scale = 0;
         if (argumentsStringList != null && argumentsStringList.size() > 1) {
             scale = Integer.parseInt(argumentsStringList.get(1));
@@ -41,7 +44,13 @@ public class RandomUtil {
         if (dataType.contains("tinyint") || dataType.contains("smallint") || dataType.contains("mediumint")) {
             return String.valueOf(new Random().nextInt(9));
         } else if (dataType.contains("int") || dataType.contains("number") || dataType.contains("bigint") || dataType.contains("numeric")) {
-            return String.valueOf(new Random().nextInt(Integer.MAX_VALUE));
+            if (length > 0 && length <= 9) {
+                int randomNum = new Random().nextInt((int) Math.pow(10, length));
+                return String.valueOf(randomNum);
+            } else if (length > 9) {
+                long randomNum = (long) (new Random().nextDouble() * Math.pow(10, length));
+                return String.valueOf(randomNum);
+            }
         } else if (dataType.contains("varchar") || dataType.contains("char") || dataType.contains("text")) {
             return "'" + RandomUtil.generateRandomString(length) + "'";
         } else if (dataType.contains("decimal") || dataType.contains("float") || dataType.contains("double")) {

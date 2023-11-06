@@ -23,6 +23,7 @@ import cn.thinkinginjava.data.model.dto.SaveDataDTO;
 import cn.thinkinginjava.data.service.DataSourceService;
 import cn.thinkinginjava.data.utils.DdlUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
@@ -153,9 +154,18 @@ public class DataController {
         }
         dataGeneratorDTO.setDdlList(ddlList);
         DataGenerator dataGenerator = new DataGenerator(dataGeneratorDTO);
-        Map<String, String> whereCondition = dataGenerator.parseWhereCondition();
+        Map<String, String> whereCondition = Maps.newHashMap();
+        try {
+            whereCondition = dataGenerator.parseWhereCondition();
+        } catch (Exception ignored){}
         for (String ddl : ddlList) {
-            CreateTable createTable = (CreateTable) CCJSqlParserUtil.parse(ddl);
+            CreateTable createTable = null;
+            try {
+                createTable = (CreateTable) CCJSqlParserUtil.parse(ddl);
+            } catch (Exception ignored){}
+            if (createTable == null) {
+                continue;
+            }
             List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
             List<cn.thinkinginjava.data.model.dto.ColumnDefinition> definitions = new ArrayList<>();
             for (ColumnDefinition columnDefinition : columnDefinitions) {
